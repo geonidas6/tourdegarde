@@ -6,9 +6,8 @@
 let state = {
     step: 1,
     config: {
-        standard_mode: 'simple', // 'simple' or 'custom'
-        weekly_template: ['A', 'A', 'A', 'A', 'A', 'A', 'A'], // Mon-Sun
-        weekday_parent: 'A',
+        standard_mode: 'simple', // simple, custom
+        weekday_parent: 'A', // A or B (pour mode simple)
         weekend_type: 'alternating', // alternating, all_a, all_b
         weekend_start: 'A', // Parent qui commence l'alternance
         vacations: [], // { name: '...', start: 'YYYY-MM-DD', end: 'YYYY-MM-DD', type: 'alternating' }

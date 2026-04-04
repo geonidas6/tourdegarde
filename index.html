@@ -52,22 +52,22 @@
                 <h2>Garde de semaine (Simple)</h2>
                 <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Qui a la garde du lundi au vendredi ?</p>
                 <div class="option-group">
-                    <label class="option-card selected" onclick="selectOption(this, 'weekday_parent', 'A')">
+                    <div class="option-card selected" onclick="selectOption(this, 'weekday_parent', 'A')">
                         <div class="dot"></div>
                         <span>Parent A</span>
-                    </label>
-                    <label class="option-card" onclick="selectOption(this, 'weekday_parent', 'B')">
+                    </div>
+                    <div class="option-card" onclick="selectOption(this, 'weekday_parent', 'B')">
                         <div class="dot"></div>
                         <span>Parent B</span>
-                    </label>
+                    </div>
                 </div>
 
                 <h2 style="margin-top: 2rem;">Week-ends</h2>
                 <div class="option-group">
-                    <label class="option-card selected" onclick="selectOption(this, 'weekend_type', 'alternating')">
+                    <div class="option-card selected" onclick="selectOption(this, 'weekend_type', 'alternating')">
                         <div class="dot"></div>
                         <span>Un week-end sur deux</span>
-                    </label>
+                    </div>
                     <label class="option-card" onclick="selectOption(this, 'weekend_type', 'all_a')">
                         <div class="dot"></div>
                         <span>Tous pour Parent A</span>
