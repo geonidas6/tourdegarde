@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tour de Garde - Co-Parentalité</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="bg-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+    <div class="container">
+        <div id="wizard" class="glass-card">
+            <h1>Tour de Garde</h1>
+            
+            <!-- Étape 1 : Choix du Mode Standard -->
+            <div id="step-1" class="step-content active">
+                <h2>1. Mode de Garde Standard</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Définissez votre organisation habituelle hors vacances scolaires.</p>
+                <div class="option-group">
+                    <label class="option-card selected" onclick="selectOption(this, 'standard_mode', 'simple')">
+                        <div class="dot"></div>
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-weight: 600;">Alternance Simple</span>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">Garde fixe en semaine + un week-end sur deux.</span>
+                        </div>
+                        <input type="radio" name="standard_mode" value="simple" checked>
+                    </label>
+                    <label class="option-card" onclick="selectOption(this, 'standard_mode', 'custom')">
+                        <div class="dot"></div>
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-weight: 600;">Planning Personnalisé</span>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">Assignation libre de chaque jour de la semaine.</span>
+                        </div>
+                        <input type="radio" name="standard_mode" value="custom">
+                    </label>
+                </div>
+                <div class="btn-group">
+                    <div></div>
+                    <button class="btn btn-primary" onclick="goToStep2()">Suivant</button>
+                </div>
+            </div>
+
+            <!-- Étape 2A : Config Simple -->
+            <div id="step-2-simple" class="step-content">
+                <h2>Garde de semaine (Simple)</h2>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Qui a la garde du lundi au vendredi ?</p>
+                <div class="option-group">
+                    <label class="option-card selected" onclick="selectOption(this, 'weekday_parent', 'A')">
+                        <div class="dot"></div>
+                        <span>Parent A</span>
+                    </label>
+                    <label class="option-card" onclick="selectOption(this, 'weekday_parent', 'B')">
+                        <div class="dot"></div>
+                        <span>Parent B</span>
+                    </label>
+                </div>
+
+                <h2 style="margin-top: 2rem;">Week-ends</h2>
+                <div class="option-group">
+                    <label class="option-card selected" onclick="selectOption(this, 'weekend_type', 'alternating')">
+                        <div class="dot"></div>
+                        <span>Un week-end sur deux</span>
+                    </label>
+                    <label class="option-card" onclick="selectOption(this, 'weekend_type', 'all_a')">
+                        <div class="dot"></div>
+                        <span>Tous pour Parent A</span>
+                    </label>
+                </div>
+
+                <div id="weekend-start-option" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--glass-border);">
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Commencer l'alternance avec :</p>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button id="btn-start-a" class="btn btn-secondary" style="flex: 1;" onclick="setWeekendStart('A')">Parent A</button>
+                        <button id="btn-start-b" class="btn btn-secondary" style="flex: 1;" onclick="setWeekendStart('B')">Parent B</button>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="nextStep(1)">Précédent</button>
+                    <button class="btn btn-primary" onclick="nextStep(3)">Suivant</button>
+                </div>
+            </div>
+
+            <!-- Étape 2B : Config Personnalisée -->
+            <div id="step-2-custom" class="step-content">
+                <h2>Planning Personnalisé</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Cliquez sur chaque jour pour assigner le parent gardien habituel.</p>
+                <div class="custom-template-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; text-align: center; margin-bottom: 2rem;">
+                    <div class="day-header" style="font-size: 0.7rem;">Lun</div>
+                    <div class="day-header" style="font-size: 0.7rem;">Mar</div>
+                    <div class="day-header" style="font-size: 0.7rem;">Mer</div>
+                    <div class="day-header" style="font-size: 0.7rem;">Jeu</div>
+                    <div class="day-header" style="font-size: 0.7rem;">Ven</div>
+                    <div class="day-header" style="font-size: 0.7rem;">Sam</div>
+                    <div class="day-header" style="font-size: 0.7rem;">Dim</div>
+                    
+                    <div id="tpl-0" class="day" onclick="toggleTemplateDay(0)">-</div>
+                    <div id="tpl-1" class="day" onclick="toggleTemplateDay(1)">-</div>
+                    <div id="tpl-2" class="day" onclick="toggleTemplateDay(2)">-</div>
+                    <div id="tpl-3" class="day" onclick="toggleTemplateDay(3)">-</div>
+                    <div id="tpl-4" class="day" onclick="toggleTemplateDay(4)">-</div>
+                    <div id="tpl-5" class="day" onclick="toggleTemplateDay(5)">-</div>
+                    <div id="tpl-6" class="day" onclick="toggleTemplateDay(6)">-</div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="nextStep(1)">Précédent</button>
+                    <button class="btn btn-primary" onclick="nextStep(3)">Suivant</button>
+                </div>
+            </div>
+
+            <div id="step-3" class="step-content">
+                <h2>3. Vacances Scolaires</h2>
+                
+                <div style="margin-bottom: 2rem;">
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Importer les dates officielles françaises (année en cours) :</p>
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                        <select id="holiday_zone" class="btn" style="flex: 2; background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border); color: white;" onchange="previewHolidays()">
+                            <option value="">Sélectionnez votre zone...</option>
+                            <option value="A">Zone A (Lyon, Bordeaux, etc.)</option>
+                            <option value="B">Zone B (Marseille, Lille, etc.)</option>
+                            <option value="C">Zone C (Paris, Toulouse, etc.)</option>
+                        </select>
+                        <button class="btn btn-primary" style="flex: 1;" onclick="importOfficialHolidays()">Importer tout</button>
+                    </div>
+                    <div id="holiday-preview" style="margin-top: 1rem; max-height: 150px; overflow-y: auto; font-size: 0.75rem; color: var(--text-muted);">
+                        <!-- Aperçu des vacances ici -->
+                    </div>
+                </div>
+
+                <div id="vacation-form" style="border-top: 1px solid var(--glass-border); padding-top: 1.5rem;">
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Ou ajouter manuellement :</p>
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                        <input type="date" id="vac_start" class="btn" style="flex: 1; background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border); color: white;">
+                        <input type="date" id="vac_end" class="btn" style="flex: 1; background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border); color: white;">
+                    </div>
+                    <div class="option-group" style="margin-bottom: 1rem;">
+                        <select id="vac_type" class="btn" style="width: 100%; background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border); color: white;">
+                            <option value="alternating">Une semaine sur deux</option>
+                            <option value="all_a">Tout pour Parent A</option>
+                            <option value="all_b">Tout pour Parent B</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-secondary" style="width: 100%; margin-bottom: 1rem;" onclick="addVacation()">Ajouter manuellement</button>
+                </div>
+                <div id="vacation-list">
+                    <!-- Les vacances ajoutées apparaîtront ici -->
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="nextStep(2)">Précédent</button>
+                    <button class="btn btn-primary" onclick="finishWizard()">Terminer</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vue Calendrier (Cachée au début) -->
+        <div id="calendar-view" class="glass-card calendar-container">
+            <div class="calendar-header">
+                <button class="btn btn-secondary" onclick="prevMonth()">&lt;</button>
+                <h2 id="current-month">Avril 2024</h2>
+                <button class="btn btn-secondary" onclick="nextMonth()">&gt;</button>
+            </div>
+            
+            <div class="calendar-grid">
+                <div class="day-header">Lun</div>
+                <div class="day-header">Mar</div>
+                <div class="day-header">Mer</div>
+                <div class="day-header">Jeu</div>
+                <div class="day-header">Ven</div>
+                <div class="day-header">Sam</div>
+                <div class="day-header">Dim</div>
+            </div>
+            <div id="calendar-days" class="calendar-grid"></div>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="color-box" style="background: var(--parent-a);"></div>
+                    <span>Parent A</span>
+                </div>
+                <div class="legend-item">
+                    <div class="color-box" style="background: var(--parent-b);"></div>
+                    <span>Parent B</span>
+                </div>
+            </div>
+
+            <div class="btn-group" style="justify-content: center;">
+                <button class="btn btn-secondary" onclick="restartWizard()">⚙️ Reconfigurer</button>
+            </div>
+        </div>
+
+        <div class="footer">
+            Modifiez un jour spécifique en cliquant dessus. Les réglages sont sauvegardés automatiquement.
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
