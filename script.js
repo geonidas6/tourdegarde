@@ -266,6 +266,20 @@ function renderVacations() {
         `;
         list.appendChild(item);
     });
+
+    // Débloquer le bouton suivant si des vacances existent
+    const btnNext = document.getElementById('btn-next-step-3');
+    const msg = document.getElementById('import-msg');
+    
+    if (btnNext && msg) {
+        if (state.config.vacations.length > 0) {
+            btnNext.disabled = false;
+            msg.innerHTML = '<span style="color:var(--parent-a);">✓ Vacances configurées.</span>';
+        } else {
+            btnNext.disabled = true;
+            msg.innerHTML = '<span style="color:var(--danger);">Veuillez importer ou ajouter des vacances.</span>';
+        }
+    }
 }
 
 function translateType(type) {
@@ -492,6 +506,7 @@ function loadState() {
         state.step = parsed.step;
         
         // Sync UI for Steps 1 & 2
+        renderVacations();
         updateWizardUI();
 
         if (state.config.vacations.length > 0) {
