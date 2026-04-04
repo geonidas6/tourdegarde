@@ -519,7 +519,11 @@ function loadState() {
 }
 
 function updateWizardUI() {
-    // ... (rest of function syncs properly except Step 4)
+    // Synchronisation du début de l'alternance
+    if (state.config.weekend_start) {
+        setWeekendStart(state.config.weekend_start);
+    }
+
     // Step 4 Transfer Sync
     if (state.config.transfers) {
         if (state.config.transfers.standard) {
