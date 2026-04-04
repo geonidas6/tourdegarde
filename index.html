@@ -122,9 +122,23 @@
                     <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
                         <select id="holiday_zone" class="btn" style="flex: 2; background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border); color: white;" onchange="previewHolidays()">
                             <option value="">Sélectionnez votre zone...</option>
-                            <option value="A">Zone A (Lyon, Bordeaux, etc.)</option>
-                            <option value="B">Zone B (Marseille, Lille, etc.)</option>
-                            <option value="C">Zone C (Paris, Toulouse, etc.)</option>
+                            <optgroup label="Métropole">
+                                <option value="Zone A">Zone A</option>
+                                <option value="Zone B">Zone B</option>
+                                <option value="Zone C">Zone C</option>
+                                <option value="Corse">Corse</option>
+                            </optgroup>
+                            <optgroup label="Outre-Mer">
+                                <option value="Guadeloupe">Guadeloupe</option>
+                                <option value="Guyane">Guyane</option>
+                                <option value="Martinique">Martinique</option>
+                                <option value="Mayotte">Mayotte</option>
+                                <option value="Réunion">Réunion</option>
+                                <option value="Saint Pierre et Miquelon">Saint Pierre et Miquelon</option>
+                                <option value="Wallis et Futuna">Wallis et Futuna</option>
+                                <option value="Nouvelle Calédonie">Nouvelle Calédonie</option>
+                                <option value="Polynésie">Polynésie</option>
+                            </optgroup>
                         </select>
                         <button class="btn btn-primary" style="flex: 1;" onclick="importOfficialHolidays()">Importer tout</button>
                     </div>
@@ -153,6 +167,57 @@
                 </div>
                 <div class="btn-group">
                     <button class="btn btn-secondary" onclick="nextStep(2)">Précédent</button>
+                    <div style="flex-direction: column; display: flex; align-items: flex-end; gap: 0.5rem;">
+                        <button id="btn-next-step-3" class="btn btn-primary" onclick="nextStep(4)" disabled>Suivant</button>
+                        <span id="import-msg" style="font-size: 0.7rem; color: var(--danger);">Veuillez importer ou ajouter des vacances.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="step-4" class="step-content">
+                <h2>4. Points d'Échange</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Configurez les modalités de transfert (heures et lieux).</p>
+                
+                <!-- Section Période Scolaire -->
+                <div class="transfer-section" style="margin-bottom: 2rem;">
+                    <h3 style="font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem;">🏫 Période Scolaire</h3>
+                    <div class="transfer-row" style="margin-bottom: 1rem; padding: 1.2rem; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid var(--glass-border);">
+                        <p style="font-size: 0.8rem; margin-bottom: 0.8rem; color: var(--accent-primary);">Début de garde</p>
+                        <div style="display: grid; grid-template-columns: 130px 1fr; gap: 0.8rem;">
+                            <input type="time" id="trans_std_start_time" class="btn time-input" value="16:30" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--glass-border);" onchange="updateTransfer('standard', 'start', 'time', this.value)">
+                            <input type="text" id="trans_std_start_loc" class="btn" value="École" placeholder="Lieu (ex: École)" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--glass-border); text-align: left;" onchange="updateTransfer('standard', 'start', 'location', this.value)">
+                        </div>
+                    </div>
+                    <div class="transfer-row" style="padding: 1.2rem; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid var(--glass-border);">
+                        <p style="font-size: 0.8rem; margin-bottom: 0.8rem; color: var(--accent-secondary);">Fin de garde</p>
+                        <div style="display: grid; grid-template-columns: 130px 1fr; gap: 0.8rem;">
+                            <input type="time" id="trans_std_end_time" class="btn time-input" value="08:30" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--glass-border);" onchange="updateTransfer('standard', 'end', 'time', this.value)">
+                            <input type="text" id="trans_std_end_loc" class="btn" value="École" placeholder="Lieu (ex: École)" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--glass-border); text-align: left;" onchange="updateTransfer('standard', 'end', 'location', this.value)">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section Période Vacances -->
+                <div class="transfer-section" style="margin-bottom: 2rem;">
+                    <h3 style="font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem;">🏖️ Période de Vacances</h3>
+                    <div class="transfer-row" style="margin-bottom: 1rem; padding: 1.2rem; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid var(--glass-border);">
+                        <p style="font-size: 0.8rem; margin-bottom: 0.8rem; color: var(--accent-primary);">Début de garde</p>
+                        <div style="display: grid; grid-template-columns: 130px 1fr; gap: 0.8rem;">
+                            <input type="time" id="trans_vac_start_time" class="btn time-input" value="10:00" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--glass-border);" onchange="updateTransfer('vacation', 'start', 'time', this.value)">
+                            <input type="text" id="trans_vac_start_loc" class="btn" value="Domicile" placeholder="Lieu (ex: Domicile)" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--glass-border); text-align: left;" onchange="updateTransfer('vacation', 'start', 'location', this.value)">
+                        </div>
+                    </div>
+                    <div class="transfer-row" style="padding: 1.2rem; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid var(--glass-border);">
+                        <p style="font-size: 0.8rem; margin-bottom: 0.8rem; color: var(--accent-secondary);">Fin de garde</p>
+                        <div style="display: grid; grid-template-columns: 130px 1fr; gap: 0.8rem;">
+                            <input type="time" id="trans_vac_end_time" class="btn time-input" value="18:00" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--glass-border);" onchange="updateTransfer('vacation', 'end', 'time', this.value)">
+                            <input type="text" id="trans_vac_end_loc" class="btn" value="Domicile" placeholder="Lieu (ex: Domicile)" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--glass-border); text-align: left;" onchange="updateTransfer('vacation', 'end', 'location', this.value)">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="nextStep(3)">Précédent</button>
                     <button class="btn btn-primary" onclick="finishWizard()">Terminer</button>
                 </div>
             </div>
