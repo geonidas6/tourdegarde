@@ -242,14 +242,26 @@
             </div>
             <div id="calendar-days" class="calendar-grid"></div>
 
-            <div class="legend">
-                <div class="legend-item">
-                    <div class="color-box" style="background: var(--parent-a);"></div>
-                    <span>Parent A</span>
+            <div class="legend" style="flex-direction: column; gap: 0.8rem; align-items: center;">
+                <div style="display: flex; gap: 1rem;">
+                    <div class="legend-item">
+                        <div class="color-box" style="background: var(--parent-a);"></div>
+                        <span>Parent A</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="color-box" style="background: var(--parent-b);"></div>
+                        <span>Parent B</span>
+                    </div>
                 </div>
-                <div class="legend-item">
-                    <div class="color-box" style="background: var(--parent-b);"></div>
-                    <span>Parent B</span>
+                <div style="display: flex; gap: 1rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.05);">
+                    <div class="legend-item">
+                        <div class="color-box" style="background: var(--parent-a); width: 3px; border-radius: 0;"></div>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">Début de garde</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="color-box" style="background: var(--danger); width: 3px; border-radius: 0;"></div>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">Fin de garde</span>
+                    </div>
                 </div>
             </div>
 

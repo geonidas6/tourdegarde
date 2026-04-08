@@ -413,16 +413,25 @@ function renderCalendar() {
         dayEl.innerHTML = `<span>${i}</span>`;
         
         // Ajouter les badges de transfert
-        const transfer = getTransferData(currentDate, guardian);
-        if (transfer) {
-            const badge = document.createElement('div');
-            badge.className = 'transfer-badge';
-            badge.innerHTML = `
-                <span style="font-weight:700;">🕒 ${transfer.time}</span>
-                <span style="opacity:0.8; font-size:0.55rem;">📍 ${transfer.location}</span>
-            `;
-            badge.title = `${transfer.type === 'start' ? 'Début de garde' : 'Fin de garde'} à ${transfer.location}`;
-            dayEl.appendChild(badge);
+        const transfers = getTransferData(currentDate, guardian);
+        if (transfers && transfers.length > 0) {
+            const container = document.createElement('div');
+            container.className = 'transfers-container';
+            const dayName = currentDate.toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', '');
+            const dayNameCap = dayName.charAt(0).toUpperCase() + dayName.slice(1);
+
+            transfers.forEach(t => {
+                const badge = document.createElement('div');
+                badge.className = `transfer-badge transfer-${t.type}`;
+                const label = t.type === 'start' ? 'Début' : 'Fin';
+                badge.innerHTML = `
+                    <span style="font-weight:700;">${dayNameCap} ${t.time}</span>
+                    <span style="opacity:0.9; font-size:0.6rem; font-weight:600;">${t.location}</span>
+                `;
+                badge.title = `${dayNameCap} : ${label} de garde à ${t.location}`;
+                container.appendChild(badge);
+            });
+            dayEl.appendChild(container);
         }
 
         dayEl.onclick = () => toggleException(dateStr, guardian);
@@ -432,8 +441,7 @@ function renderCalendar() {
 }
 
 function getTransferData(date, currentGuardian) {
-    if (!state.config.transfers) return null;
-    const day = date.getDay();
+    if (!state.config.transfers) return [];
     
     // Déterminer si on est en vacances pour choisir le bon set de transfert
     const dateStr = toLocalDateString(date);
@@ -445,29 +453,25 @@ function getTransferData(date, currentGuardian) {
         }
     }
     
+    // On utilise la configuration du jour actuel (ou demain si c'est une transition)
     const config = isHol ? state.config.transfers.vacation : state.config.transfers.standard;
-    if (!config) return null;
+    if (!config) return [];
 
-    // On compare avec hier / demain pour voir si c'est un jour de changement
-    const yesterday = new Date(date);
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayGuardian = getGuardian(yesterday);
-    
+    const transfers = [];
+
+    // Détecter un changement entre AUJOURD'HUI et DEMAIN
     const tomorrow = new Date(date);
     tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowGuardian = getGuardian(tomorrow);
 
-    // Début de garde (le gardien d'aujourd'hui est différent de celui d'hier)
-    if (day === 5 && currentGuardian !== yesterdayGuardian) {
-        return { ...config.start, type: 'start' };
-    }
-    
-    // Fin de garde (le gardien d'aujourd'hui est différent de celui de demain)
-    if (day === 1 && currentGuardian !== tomorrowGuardian) {
-        return { ...config.end, type: 'end' };
+    if (currentGuardian !== tomorrowGuardian) {
+        // C'est un jour de transition : on affiche la fin du gardien actuel 
+        // ET le début du gardien suivant sur ce même jour.
+        transfers.push({ ...config.end, type: 'end' });
+        transfers.push({ ...config.start, type: 'start' });
     }
 
-    return null;
+    return transfers;
 }
 
 function toggleException(dateStr, currentGuardian) {

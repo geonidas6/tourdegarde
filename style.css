@@ -304,26 +304,59 @@ h1 {
     border-color: rgba(245, 158, 11, 0.4);
 }
 
-.transfer-badge {
+.transfers-container {
     position: absolute;
     bottom: 4px;
     left: 4px;
     right: 4px;
-    font-size: 0.6rem;
-    padding: 2px 4px;
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-height: 85%;
+    overflow: hidden;
+    justify-content: flex-end;
+}
+
+.transfer-badge {
+    font-size: 0.65rem;
+    padding: 3px 6px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 6px;
     color: var(--text-primary);
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
     gap: 1px;
     pointer-events: none;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(4px);
-    overflow: hidden;
+    backdrop-filter: blur(8px);
+    overflow: visible;
+}
+
+.transfer-badge span:last-child {
+    font-size: 0.6rem;
+    color: #cbd5e1; /* slate-300 */
+    font-weight: 500;
     white-space: nowrap;
+    overflow: hidden;
     text-overflow: ellipsis;
+    display: block;
+    margin-top: 1px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    padding-top: 1px;
+}
+
+.transfer-start {
+    border-left: 3px solid var(--parent-a);
+}
+
+.transfer-end {
+    border-left: 3px solid var(--danger);
+}
+
+.transfer-badge span {
+    display: block;
+    line-height: 1.1;
 }
 
 .transfer-badge i {
