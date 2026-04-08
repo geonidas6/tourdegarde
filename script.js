@@ -21,7 +21,8 @@ let state = {
                 start: { time: '10:00', location: 'Domicile' },
                 end: { time: '18:00', location: 'Domicile' }
             }
-        }
+        },
+        weekly_template: ['A', 'A', 'A', 'A', 'A', 'A', 'A'] // Lundi à Dimanche
     },
     today: new Date()
 };
@@ -503,6 +504,11 @@ function loadState() {
         // Migration et fusion sécurisée de la config
         state.config = { ...state.config, ...parsed.config };
         state.step = parsed.step;
+
+        // Migration logic: ensure weekly_template exists if missing from saved state
+        if (!state.config.weekly_template) {
+            state.config.weekly_template = ['A', 'A', 'A', 'A', 'A', 'A', 'A'];
+        }
         
         // Sync UI for Steps 1 & 2
         renderVacations();
