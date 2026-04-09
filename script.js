@@ -9,13 +9,14 @@ let state = {
         standard_mode: 'simple', // simple, custom
         weekday_parent: 'A', // A or B (pour mode simple)
         weekend_type: 'alternating', // alternating, all_a, all_b
-        weekend_start: 'A', // Parent qui commence l'alternance
+        alt_week_transition_day: 3, // 1=Lundi, 2=Mardi, 3=Mercredi, etc.
+        alt_week_start_parent: 'A', // Parent en semaine 1
         vacations: [], // { name: '...', start: 'YYYY-MM-DD', end: 'YYYY-MM-DD', type: 'alternating' }
         exceptions: {}, // 'YYYY-MM-DD': 'A' or 'B'
         transfers: {
             standard: {
                 start: { time: '16:30', location: 'École' },
-                end: { time: '08:30', location: 'École' }
+                end: { time: '08:30', location: 'Domicile' }
             },
             vacation: {
                 start: { time: '10:00', location: 'Domicile' },
@@ -53,6 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
 function goToStep2() {
     if (state.config.standard_mode === 'simple') {
         nextStep('2-simple');
+    } else if (state.config.standard_mode === 'alternating_week') {
+        nextStep('2-alternating');
     } else {
         nextStep('2-custom');
         renderTemplateGrid();
@@ -121,11 +124,12 @@ async function previewHolidays() {
     preview.innerHTML = '<div class="loader"></div><span>Récupération des dates officielles...</span>';
     
     try {
-        // Année scolaire demandée (2026-2027)
-        const schoolYear = '2026-2027';
+        // Année scolaire en cours dynamique
+        const currentYear = new Date().getFullYear();
+        const schoolYear = (new Date().getMonth() >= 7) ? `${currentYear}-${currentYear+1}` : `${currentYear-1}-${currentYear}`;
         
-        // Utilisation du champ 'zones' et année dynamique demandée (2026-2027)
-        const url = `https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-calendrier-scolaire/records?where=zones%20%3D%20'${zone}'%20AND%20annee_scolaire%20%3D%20'${schoolYear}'&order_by=start_date&limit=20`;
+        // Utilisation du champ 'zones' et année dynamique avec limite à 100 pour tout capturer
+        const url = `https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-calendrier-scolaire/records?where=zones%20%3D%20'${zone}'%20AND%20annee_scolaire%20%3D%20'${schoolYear}'&order_by=start_date&limit=100`;
         
         const response = await fetch(url, {
             headers: {
@@ -240,6 +244,18 @@ function removeVacation(index) {
     saveState();
 }
 
+function editVacation(index) {
+    const v = state.config.vacations[index];
+    document.getElementById('vac_start').value = v.start;
+    document.getElementById('vac_end').value = v.end;
+    document.getElementById('vac_type').value = v.type;
+    
+    // On met en forme pour re-modifier
+    state.config.vacations.splice(index, 1);
+    renderVacations();
+    saveState();
+}
+
 function renderVacations() {
     const list = document.getElementById('vacation-list');
     list.innerHTML = '';
@@ -262,7 +278,10 @@ function renderVacations() {
                 <span style="font-size: 0.9rem;">${v.start} au ${v.end}</span>
                 <span style="font-size: 0.7rem; color: var(--text-muted);">${translateType(v.type)}</span>
             </div>
-            <button class="btn-remove" onclick="removeVacation(${index})">&times;</button>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <button class="btn-edit" onclick="editVacation(${index})" style="background:transparent; border:none; color:var(--text-primary); cursor:pointer; font-size:1.2rem;">✎</button>
+                <button class="btn-remove" onclick="removeVacation(${index})">&times;</button>
+            </div>
         `;
         list.appendChild(item);
     });
@@ -339,6 +358,23 @@ function getGuardian(date) {
     if (state.config.standard_mode === 'custom') {
         const dayOfWeek = (date.getDay() === 0) ? 6 : date.getDay() - 1; // 0-6 (Mon-Sun)
         return state.config.weekly_template[dayOfWeek] || 'A';
+    }
+
+    // 4. Mode Semaine Alternée (Ex: Mercredi au Mercredi)
+    if (state.config.standard_mode === 'alternating_week') {
+        const refDate = new Date(2024, 0, 1); // Un lundi de référence
+        let diffDays = Math.floor((date - refDate) / (1000 * 60 * 60 * 24));
+        
+        // Ajuster selon le jour de relève (1=Lun, 2=Mar, 3=Mer, 4=Jeu, 5=Ven, 6=Sam, 7=Dim)
+        const transitionDay = parseInt(state.config.alt_week_transition_day) || 1;
+        diffDays -= (transitionDay - 1);
+        
+        const weekIndex = Math.floor(diffDays / 7);
+        const isStartParent = (weekIndex % 2 === 0);
+        const startParent = state.config.alt_week_start_parent || 'A';
+        const otherParent = (startParent === 'A') ? 'B' : 'A';
+        
+        return isStartParent ? startParent : otherParent;
     }
 
     // Mode Simple

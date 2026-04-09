@@ -28,9 +28,17 @@
                         <div class="dot"></div>
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-weight: 600;">Alternance Simple</span>
-                            <span style="font-size: 0.8rem; color: var(--text-muted);">Garde fixe en semaine + un week-end sur deux.</span>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">Garde fixe la semaine + un week-end sur deux.</span>
                         </div>
                         <input type="radio" name="standard_mode" value="simple" checked>
+                    </label>
+                    <label class="option-card" onclick="selectOption(this, 'standard_mode', 'alternating_week')">
+                        <div class="dot"></div>
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-weight: 600;">Semaine Alternée (7j/7j)</span>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">Garde 1 semaine sur 2 (ex: du mercredi au mercredi).</span>
+                        </div>
+                        <input type="radio" name="standard_mode" value="alternating_week">
                     </label>
                     <label class="option-card" onclick="selectOption(this, 'standard_mode', 'custom')">
                         <div class="dot"></div>
@@ -81,6 +89,42 @@
                         <button id="btn-start-b" class="btn btn-secondary" style="flex: 1;" onclick="setWeekendStart('B')">Parent B</button>
                     </div>
                 </div>
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="nextStep(1)">Précédent</button>
+                    <button class="btn btn-primary" onclick="nextStep(3)">Suivant</button>
+                </div>
+            </div>
+
+            <!-- Étape 2C : Config Semaine Alternée -->
+            <div id="step-2-alternating" class="step-content">
+                <h2>Semaine Alternée</h2>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Configurez le changement de semaine.</p>
+                
+                <h3 style="font-size: 0.9rem; margin-bottom: 0.8rem;">Le changement s'effectue chaque :</h3>
+                <div class="option-group" style="margin-bottom: 2rem;">
+                    <select class="btn" style="width: 100%; background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border); color: white;" onchange="state.config.alt_week_transition_day = this.value; saveState();">
+                        <option value="1">Lundi</option>
+                        <option value="2">Mardi</option>
+                        <option value="3" selected>Mercredi</option>
+                        <option value="4">Jeudi</option>
+                        <option value="5">Vendredi</option>
+                        <option value="6">Samedi</option>
+                        <option value="7">Dimanche</option>
+                    </select>
+                </div>
+
+                <h3 style="font-size: 0.9rem; margin-bottom: 0.8rem;">Qui est le premier parent gardien ?</h3>
+                <div class="option-group" style="display: flex; gap: 0.5rem;">
+                    <label class="option-card selected" style="flex: 1; justify-content: center;" onclick="selectOption(this, 'alt_week_start_parent', 'A')">
+                        <div class="dot"></div><span>Parent A</span>
+                        <input type="radio" name="alt_week_start_parent" value="A" checked>
+                    </label>
+                    <label class="option-card" style="flex: 1; justify-content: center;" onclick="selectOption(this, 'alt_week_start_parent', 'B')">
+                        <div class="dot"></div><span>Parent B</span>
+                        <input type="radio" name="alt_week_start_parent" value="B">
+                    </label>
+                </div>
+
                 <div class="btn-group">
                     <button class="btn btn-secondary" onclick="nextStep(1)">Précédent</button>
                     <button class="btn btn-primary" onclick="nextStep(3)">Suivant</button>
@@ -148,19 +192,19 @@
                 </div>
 
                 <div id="vacation-form" style="border-top: 1px solid var(--glass-border); padding-top: 1.5rem;">
-                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Ou ajouter manuellement :</p>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Ou ajouter une période personnalisée :</p>
                     <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
                         <input type="date" id="vac_start" class="btn" style="flex: 1; background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border); color: white;">
                         <input type="date" id="vac_end" class="btn" style="flex: 1; background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border); color: white;">
                     </div>
                     <div class="option-group" style="margin-bottom: 1rem;">
                         <select id="vac_type" class="btn" style="width: 100%; background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border); color: white;">
-                            <option value="alternating">Une semaine sur deux</option>
+                            <option value="alternating">Alternance 1 semaine / 1 semaine</option>
                             <option value="all_a">Tout pour Parent A</option>
                             <option value="all_b">Tout pour Parent B</option>
                         </select>
                     </div>
-                    <button class="btn btn-secondary" style="width: 100%; margin-bottom: 1rem;" onclick="addVacation()">Ajouter manuellement</button>
+                    <button class="btn btn-secondary" style="width: 100%; margin-bottom: 1rem;" onclick="addVacation()">Enregistrer cette période</button>
                 </div>
                 <div id="vacation-list">
                     <!-- Les vacances ajoutées apparaîtront ici -->
@@ -176,23 +220,30 @@
 
             <div id="step-4" class="step-content">
                 <h2>4. Points d'Échange</h2>
-                <p style="color: var(--text-muted); margin-bottom: 2rem;">Configurez les modalités de transfert (heures et lieux).</p>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Configurez l'heure et le lieu des transmissions de l'enfant.</p>
                 
+                <datalist id="suggested-locations">
+                    <option value="École">
+                    <option value="Domicile Parent A">
+                    <option value="Domicile Parent B">
+                    <option value="Gare">
+                </datalist>
+
                 <!-- Section Période Scolaire -->
                 <div class="transfer-section" style="margin-bottom: 2rem;">
                     <h3 style="font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem;">🏫 Période Scolaire</h3>
                     <div class="transfer-row" style="margin-bottom: 1rem; padding: 1.2rem; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid var(--glass-border);">
-                        <p style="font-size: 0.8rem; margin-bottom: 0.8rem; color: var(--accent-primary);">Début de garde</p>
+                        <p style="font-size: 0.8rem; margin-bottom: 0.8rem; color: var(--accent-primary);">Où le parent entrant récupère-t-il l'enfant au début de son tour ?</p>
                         <div style="display: grid; grid-template-columns: 130px 1fr; gap: 0.8rem;">
                             <input type="time" id="trans_std_start_time" class="btn time-input" value="16:30" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--glass-border);" onchange="updateTransfer('standard', 'start', 'time', this.value)">
-                            <input type="text" id="trans_std_start_loc" class="btn" value="École" placeholder="Lieu (ex: École)" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--glass-border); text-align: left;" onchange="updateTransfer('standard', 'start', 'location', this.value)">
+                            <input type="text" id="trans_std_start_loc" list="suggested-locations" class="btn" value="École" placeholder="Saisir un lieu..." style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--glass-border); text-align: left;" onchange="updateTransfer('standard', 'start', 'location', this.value)">
                         </div>
                     </div>
                     <div class="transfer-row" style="padding: 1.2rem; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid var(--glass-border);">
-                        <p style="font-size: 0.8rem; margin-bottom: 0.8rem; color: var(--accent-secondary);">Fin de garde</p>
+                        <p style="font-size: 0.8rem; margin-bottom: 0.8rem; color: var(--accent-secondary);">Où le parent sortant dépose-t-il l'enfant à la fin de son tour ?</p>
                         <div style="display: grid; grid-template-columns: 130px 1fr; gap: 0.8rem;">
                             <input type="time" id="trans_std_end_time" class="btn time-input" value="08:30" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--glass-border);" onchange="updateTransfer('standard', 'end', 'time', this.value)">
-                            <input type="text" id="trans_std_end_loc" class="btn" value="École" placeholder="Lieu (ex: École)" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--glass-border); text-align: left;" onchange="updateTransfer('standard', 'end', 'location', this.value)">
+                            <input type="text" id="trans_std_end_loc" list="suggested-locations" class="btn" value="École" placeholder="Saisir un lieu..." style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--glass-border); text-align: left;" onchange="updateTransfer('standard', 'end', 'location', this.value)">
                         </div>
                     </div>
                 </div>
@@ -201,17 +252,17 @@
                 <div class="transfer-section" style="margin-bottom: 2rem;">
                     <h3 style="font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem;">🏖️ Période de Vacances</h3>
                     <div class="transfer-row" style="margin-bottom: 1rem; padding: 1.2rem; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid var(--glass-border);">
-                        <p style="font-size: 0.8rem; margin-bottom: 0.8rem; color: var(--accent-primary);">Début de garde</p>
+                        <p style="font-size: 0.8rem; margin-bottom: 0.8rem; color: var(--accent-primary);">Récupération par le parent entrant</p>
                         <div style="display: grid; grid-template-columns: 130px 1fr; gap: 0.8rem;">
                             <input type="time" id="trans_vac_start_time" class="btn time-input" value="10:00" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--glass-border);" onchange="updateTransfer('vacation', 'start', 'time', this.value)">
-                            <input type="text" id="trans_vac_start_loc" class="btn" value="Domicile" placeholder="Lieu (ex: Domicile)" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--glass-border); text-align: left;" onchange="updateTransfer('vacation', 'start', 'location', this.value)">
+                            <input type="text" id="trans_vac_start_loc" list="suggested-locations" class="btn" value="Domicile" placeholder="Saisir un lieu..." style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--glass-border); text-align: left;" onchange="updateTransfer('vacation', 'start', 'location', this.value)">
                         </div>
                     </div>
                     <div class="transfer-row" style="padding: 1.2rem; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid var(--glass-border);">
-                        <p style="font-size: 0.8rem; margin-bottom: 0.8rem; color: var(--accent-secondary);">Fin de garde</p>
+                        <p style="font-size: 0.8rem; margin-bottom: 0.8rem; color: var(--accent-secondary);">Dépôt par le parent sortant</p>
                         <div style="display: grid; grid-template-columns: 130px 1fr; gap: 0.8rem;">
                             <input type="time" id="trans_vac_end_time" class="btn time-input" value="18:00" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--glass-border);" onchange="updateTransfer('vacation', 'end', 'time', this.value)">
-                            <input type="text" id="trans_vac_end_loc" class="btn" value="Domicile" placeholder="Lieu (ex: Domicile)" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--glass-border); text-align: left;" onchange="updateTransfer('vacation', 'end', 'location', this.value)">
+                            <input type="text" id="trans_vac_end_loc" list="suggested-locations" class="btn" value="Domicile" placeholder="Saisir un lieu..." style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--glass-border); text-align: left;" onchange="updateTransfer('vacation', 'end', 'location', this.value)">
                         </div>
                     </div>
                 </div>
